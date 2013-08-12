@@ -16,7 +16,7 @@ def manager(config=None):
 def sound(host):
     app.run(host=host)
 
-manager.add_option('-c', '--config', dest='config', required=False)
+manager.add_option('-c', '--config', dest='config', required=True)
 
 if __name__ == '__main__':
     manager.run()
