@@ -10,6 +10,7 @@ from soran.web.app import app
 def manager(config=None):
     config = os.path.abspath(config)
     app.config.from_pyfile(config)
+    assert 'DATABASE_URL' in app.config, 'DATABASE_URL missing in config.'
     return app
 
 @manager.option('--host', dest='host', default=None)
