@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Unicode
 
-from .db import Base
+from .db import Base, services
 
 class Track(Base):
     id = Column(Integer, primary_key=True)
