@@ -1,15 +1,25 @@
 from flask import current_app
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from werkzeug.local import LocalProxy
 from sqlalchemy import Enum, create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 
 __all__ = ('Base', 'services', 'ensure_shutdown_session', 
-           'get_engine', 'get_session')
+           'get_engine', 'get_session', 'get_alembic_config')
 
 Base = declarative_base()
 
 services = Enum('bugs', 'naver_music')
+
+def get_alembic_config(engine):
+    url = str(engine.url)
+    config = Config()
+    config.set_main_option('script_location', 'soran:migration')
+    config.set_main_option('sqlalchemy.url', url)
+    config.set_main_option('url', url)
+    return config, ScriptDirectory.from_config(config)
 
 
 def ensure_shutdown_session(app):

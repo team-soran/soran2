@@ -1,1 +1,3 @@
 DEBUG = True
+
+DATABASE_URL = ''
