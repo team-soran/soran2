@@ -11,7 +11,7 @@ __all__ = ('Base', 'services', 'ensure_shutdown_session',
 
 Base = declarative_base()
 
-services = Enum('bugs', 'naver_music')
+services = Enum('bugs', 'naver_music', name='services')
 
 def get_alembic_config(engine):
     url = str(engine.url)
