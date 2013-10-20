@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, Unicode
 
 from .db import Base, services
 
+__all__ = 'Track',
+
 class Track(Base):
     id = Column(Integer, primary_key=True)
 

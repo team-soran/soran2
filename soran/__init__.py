@@ -1,3 +1,3 @@
-import soran.artist
-import soran.track
-import soran.user
+from soran.artist import *
+from soran.track import *
+from soran.user import *
