@@ -5,6 +5,7 @@ from werkzeug.local import LocalProxy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.types import Enum
 
 __all__ = ('Base', 'ensure_shutdown_session', 'get_engine', 'get_session',
            'get_alembic_config')
@@ -31,6 +32,8 @@ def ensure_shutdown_session(app):
         else:
             session.rollback()
 
+        session.close()
+
     app.teardown_appcontext(remove_or_rollback)
 
 
@@ -40,12 +43,18 @@ def get_engine(app=None):
         return create_engine(app.config.get('DATABASE_URL', None))
 
 
-def get_session():
-    app = current_app
-    sess = scoped_session(sessionmaker(bind=get_engine(),
+def get_session(engine=None):
+    if engine is None:
+        engine = get_engine()
+
+    sess = scoped_session(sessionmaker(bind=engine,
                                        autocommit=False,
                                        autoflush=False))
     return sess
 
 
 session = LocalProxy(get_session)
+
+SERVICE_BUGS = 'bugs'
+SERVICE_NAVER_MUSIC = 'naver-music'
+services = Enum(SERVICE_BUGS, SERVICE_NAVER_MUSIC, name='service')
