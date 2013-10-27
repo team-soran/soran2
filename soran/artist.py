@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, Unicode
+from datetime import datetime
+
+from sqlalchemy import Column, Integer, Unicode, DateTime
 
 from .db import Base, services
 
@@ -10,5 +12,9 @@ class Artist(Base):
     name = Column(Unicode, nullable=False)
 
     services = Column(services, nullable=False)
+
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
 
     __tablename__ = 'artists'

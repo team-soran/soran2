@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from bcrypt import gensalt, hashpw
+from datetime import datetime
 
-from sqlalchemy import Column, Integer, Unicode, ForeignKey
+from bcrypt import gensalt, hashpw
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
@@ -22,6 +23,10 @@ class User(Base):
     credentials = relationship(
                       'Credential', cascade='all, delete-orphan',
                       collection_class=attribute_mapped_collection('sort'))
+
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
 
     @property
     def password(self):
@@ -44,6 +49,10 @@ class MusicServiceUser(Base):
 
     services = Column(services, primary_key=True)
 
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
+
     __tablename__ = 'music_service_users'
 
 
@@ -57,6 +66,10 @@ class Credential(Base):
 
     sort = Column(Unicode, nullable=False)
 
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
+
     __mapper_args__ = {'polymorphic_on': sort}
     __tablename__ = 'credentials'
 
@@ -68,6 +81,10 @@ class PasswordCredential(Credential):
     id = Column(Integer, ForeignKey(Credential.id), primary_key=True)
 
     crypted_password = Column(Unicode, nullable=False)
+
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
 
     def __eq__(self, pw):
         return hashpw(pw, self.crypted_password) == self.crypted_password
