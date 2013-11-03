@@ -1,25 +1,108 @@
-from sqlalchemy import Column, Integer, Unicode, ForeignKey
+# -*- coding: utf-8 -*-
+from datetime import datetime
+
+from bcrypt import gensalt, hashpw
+from sqlalchemy import Column, Integer, Unicode, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 from .db import Base, services
 
+__all__ = 'User', 'MusicServiceUser', 'Credential', 'PasswordCredential',
+
 class User(Base):
+
     id = Column(Integer, primary_key=True)
 
-    name = Column(Unicode, nullable=False)
+    name = Column(Unicode, nullable=False, unique=True)
 
-    url = Column(Unicode, nullable=True)
+    mail = Column(Unicode, nullable=False, unique=True)
 
-    services = Column(services, nullable=False)
+    music_services = relationship('MusicServiceUser')
+
+    credentials = relationship(
+                      'Credential', cascade='all, delete-orphan',
+                      collection_class=attribute_mapped_collection('sort'))
+
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
+
+    @property
+    def password(self):
+        return self.credentials[PasswordCredential.sort_]
+
+
+    @password.setter
+    def password(self, pw):
+        cred = PasswordCredential(password=pw)
+        self.credentials[PasswordCredential.sort_] = cred
+
+    __tablename__ = 'users'
+
+
+class MusicServiceUser(Base):
+
+    user_id = Column(Integer, ForeignKey(User.id), primary_key=True)
+
+    service_id = Column(Unicode(255), primary_key=True)
+
+    services = Column(services, primary_key=True)
+
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
+
+    __tablename__ = 'music_service_users'
+
+
+class Credential(Base):
+
+    id = Column(Integer, primary_key=True)
+
+    user_id = Column(Integer, ForeignKey(User.id))
+
+    user = relationship('User')
 
     sort = Column(Unicode, nullable=False)
 
-    __tablename__ = 'users'
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
+
     __mapper_args__ = {'polymorphic_on': sort}
+    __tablename__ = 'credentials'
 
-class FacebookUser(User):
-    id = Column(Integer, ForeignKey(User.id), primary_key=True)
+
+class PasswordCredential(Credential):
     
-    facebook_id = Column(Unicode, nullable=True)
+    sort_ = 'password'
 
-    __tablename__ = 'facebook_users'
-    __mapper_args__ = {'polymorphic_identity': 'facebook'}
+    id = Column(Integer, ForeignKey(Credential.id), primary_key=True)
+
+    crypted_password = Column(Unicode, nullable=False)
+
+    created_at = Column(DateTime(timezone=True),
+                        default=datetime.utcnow,
+                        nullable=False)
+
+    def __eq__(self, pw):
+        return hashpw(pw, self.crypted_password) == self.crypted_password
+
+
+    def __ne__(self, pw):
+        return not hashpw(pw, self.crypted_password) == self.crypted_password
+
+
+    @property
+    def password(self):
+        return self
+
+
+    @password.setter
+    def password(self, pw):
+        self.crypted_password = hashpw(pw, gensalt())
+
+
+    __mapper_args__ = {'polymorphic_identity': sort_}
+    __tablename__ = 'password_credentials'
