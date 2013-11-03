@@ -2,4 +2,4 @@ DEBUG = True
 
 DATABASE_URL = 'rdbms://name@host/dbname'
 
-ALEMBIC_SCRIPT_LOCATION = '/home/hyojun/soran/soran/migrations'
+ALEMBIC_SCRIPT_LOCATION = '/your-project-path/migrations'

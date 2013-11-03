@@ -3,16 +3,6 @@ from pytest import fixture
 
 from soran.user import User, Credential
 
-@fixture
-def f_user(f_session):
-    n = 'admire'
-    m = 'admire9@gmail.com'
-    u = User(name=n, mail=m, password='password')
-    f_session.add(u)
-    f_session.commit()
-    return u
-
-
 def test_create_user(f_session):
     n = 'admire'
     m = 'admire9@gmail.com'
