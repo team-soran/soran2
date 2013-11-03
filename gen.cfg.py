@@ -1,5 +1,0 @@
-DEBUG = True
-
-DATABASE_URL = 'rdbms://name@host/dbname'
-
-ALEMBIC_SCRIPT_LOCATION = '/home/hyojun/soran/soran/migrations'
