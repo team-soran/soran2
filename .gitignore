@@ -36,3 +36,6 @@ nosetests.xml
 .pydevproject
 
 *.cfg.py
+
+# personal virtualenvwrapper configuration file
+.virtualenvwrapper
