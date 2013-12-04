@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+from functools import wraps
 from datetime import datetime, timedelta
 
-from flask import Blueprint, request
+from flask import Blueprint, request, g
 from flask_oauthlib.provider import OAuth2Provider
 from sqlalchemy.exc import IntegrityError
 
 from ..oauth import OAuthClient, Token, Grant
 from ..db import session
+from .response import forbidden
 
 
 __all__ = 'oauth',
@@ -78,6 +80,31 @@ def create_or_find_token(client_id, user_id, scopes, expires_in=3600 * 12):
     return token
 
 
+def auth_required(f):
+    @wraps(f)
+    def deco(*args, **kwards):
+        access_token = request.args.get('access_token', None)
+        auth_header = request.headers.get('Authorization', None)
+        token = None
+        if access_token is not None:
+            token = access_token
+        elif auth_header is not None:
+            toks = auth_header.split(' ')
+            if len(toks) == 2 and toks[0] == 'OAuth':
+                token = toks[1]
+        if token is None:
+            return forbidden(message='access token not contains')
+        t = session.query(Token)\
+                .filter(Token.access_token == token)\
+                .first()
+        if not t:
+            return forbidden(message='invalid access token')
+        g.current_user = t.user
+        return f(*args, **kwards)
+    return deco
+
+
 @bp.route('/auth/', methods=['GET'])
+@auth_required
 def auth():
     return 'auth'

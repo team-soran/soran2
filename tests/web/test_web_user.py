@@ -24,7 +24,43 @@ def test_login(f_app, f_session, f_user):
     assert 200 == data['status_code']
     assert 'username' in data
     assert m == data['username']
+    assert 'access_token' in data
+    assert 'refresh_token' in data
+    assert 'expires' in data
     token = f_session.query(Token)\
                  .filter(Token.user_id == f_user.id)\
                  .first()
     assert token
+    assert token.access_token == data['access_token']
+    assert token.refresh_token == data['refresh_token']
+
+
+@fixture
+def f_login(f_user, f_app):
+    m = f_user.mail
+    p = 'password'
+    url = url_for('user.login')
+    with app.test_client() as c:
+        r = c.post(url, data={'username': m, 'password': p})
+    return json.loads(r.data)
+
+
+def test_me(f_login):
+    with app.test_client() as c:
+        r = c.get(url_for('user.me', access_token=f_login['access_token']))
+    assert 200 == r.status_code
+    print 'a', r.data
+    data = json.loads(r.data)
+    assert 'ok' in data
+    assert data['ok']
+
+
+def test_header_me(f_login):
+    with app.test_client() as c:
+        r = c.get(url_for('user.me'),
+                  headers={
+                      'Authorization': 'OAuth %s' % f_login['access_token']})
+    assert 200 == r.status_code
+    data = json.loads(r.data)
+    assert 'ok' in data
+    assert data['ok']
