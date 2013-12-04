@@ -47,5 +47,3 @@ def f_user(f_session):
     f_session.add(u)
     f_session.commit()
     return u
-
-

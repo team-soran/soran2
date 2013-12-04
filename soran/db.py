@@ -1,9 +1,9 @@
-from flask import current_app
+from flask import current_app, g
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 from werkzeug.local import LocalProxy
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import Enum
 
@@ -27,11 +27,10 @@ def get_alembic_config(engine):
 
 def ensure_shutdown_session(app):
     def remove_or_rollback(exc=None):
-        if not exc:
-            session.remove()
-        else:
-            session.rollback()
-        session.close()
+        if hasattr(g, 'sess'):
+            if exc:
+                g.sess.rollback()
+            g.sess.close()
 
     app.teardown_appcontext(remove_or_rollback)
 
@@ -45,11 +44,10 @@ def get_engine(app=None):
 def get_session(engine=None):
     if engine is None:
         engine = get_engine()
-
-    sess = scoped_session(sessionmaker(bind=engine,
-                                       autocommit=False,
-                                       autoflush=False))
-    return sess
+    if not hasattr(g, 'sess'):
+        Session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+        setattr(g, 'sess', Session())
+    return getattr(g, 'sess')
 
 
 session = LocalProxy(get_session)
