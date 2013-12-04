@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
 from pytest import fixture
+from flask import _request_ctx_stack, g
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 from soran.web.app import app
 from soran.db import get_session, Base, SERVICE_BUGS, get_engine
 from soran.track import Track
 from soran.artist import Artist
 from soran.user import User
+from soran.oauth import OAuthClient
 
 @fixture
 def f_session(request):
-    with app.app_context():
+    with app.test_request_context() as _ctx:
+        Session = sessionmaker(autocommit=False, autoflush=False)
         app.config['DATABASE_URL'] = 'sqlite:///'
         engine = get_engine(app)
         Base.metadata.create_all(engine)
-        session = get_session(engine)
+        _ctx.push()
+        session = Session(bind=engine)
+        setattr(g, 'sess', session)
         def finish():
-            session.remove()
             session.close()
             Base.metadata.drop_all(engine)
             engine.dispose()
@@ -31,6 +36,7 @@ def f_artist(f_session):
     f_session.commit()
     return a
 
+
 @fixture
 def f_track(f_session):
     track_name = u'똑같다면'
@@ -38,6 +44,7 @@ def f_track(f_session):
     f_session.add(track)
     f_session.commit()
     return track
+
 
 @fixture
 def f_user(f_session):
