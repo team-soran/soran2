@@ -10,6 +10,3 @@ def test_access_token(f_app, f_user, f_session):
     assert tf.access_token
     assert tf.refresh_token
     assert t.access_token == tf.access_token
-    print tf.access_token
-    print tf.refresh_token
-    assert False

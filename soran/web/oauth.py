@@ -3,8 +3,9 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, request
 from flask_oauthlib.provider import OAuth2Provider
+from sqlalchemy.exc import IntegrityError
 
-from ..oauth import OAuthClient
+from ..oauth import OAuthClient, Token, Grant
 from ..db import session
 
 
@@ -37,6 +38,44 @@ def save_grant(client_id, code, request, *args, **kwards):
                   expires=expires)
     session.add(grant)
     session.commit()
+
+
+@oauth.tokengetter
+def load_token(access_token=None, refresh_token=None):
+    if access_token:
+        return Token.query.filter_by(access_token=access_token).first()
+    elif refresh_token:
+        return Token.query.filter_by(refresh_token=refresh_token).first()
+
+
+@oauth.tokensetter
+def save_token(token, request, *args, **kwargs):
+    token = create_or_find_token(request.client.client_id,
+                                 request.user.id,
+                                 token.get('expires_in', None))
+    return token
+
+
+def create_or_find_token(client_id, user_id, scopes, expires_in=3600 * 12):
+    token = session.query(Token)\
+                .join(OAuthClient, OAuthClient.client_id == Token.client_id)\
+                .filter(Token.client_id == client_id)\
+                .filter(Token.user_id == user_id)\
+                .first()
+    create = not token
+    if token and token.is_expired:
+        session.delete(token)
+        create = True
+    if create:
+        expires = datetime.utcnow() + timedelta(seconds=expires_in)
+        token = Token(user_id=user_id, client_id=client_id,
+                      _scopes=scopes, expires=expires)
+        session.add(token)
+    try:
+        session.commit()
+    except IntegrityError:
+        abort(500)
+    return token
 
 
 @bp.route('/auth/', methods=['GET'])

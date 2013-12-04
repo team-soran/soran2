@@ -72,6 +72,34 @@ def current():
     return alembic_current(config)
 
 
+@manager.command
+def init_soran_app():
+    from soran.db import session
+    from soran.oauth import OAuthClient
+    from soran.user import User
+    hyojun = session.query(User)\
+                 .filter(User.mail == u'hyojun@admire.kr')\
+                 .first()
+    if not hyojun:
+        hyojun = User(name=u'kanghyojun',
+                      mail=u'hyojun@admire.kr',
+                      password=u'p:hyojun')
+        session.add(hyojun)
+    app = session.query(OAuthClient)\
+              .filter(OAuthClient.user == hyojun)\
+              .filter(OAuthClient.is_confidential == True)\
+              .first()
+    if not app:
+        app = OAuthClient(name=u'soran',
+                          user=hyojun,
+                          redirect_uri=u'http://undefined.com',
+                          is_confidential=True,
+                          client_id=u'125243794405',
+                          client_secret=u'$2a$12$UIJvYUYtYW0TGtnRv'
+                                        u'8hnbO9WYajGzaxs6o1FCSURLRjdX9se5f7Pe')
+        session.add(app)
+    session.commit()
+
 manager.add_option('-c', '--config', dest='config', required=True)
 
 if __name__ == '__main__':

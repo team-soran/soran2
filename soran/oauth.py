@@ -49,6 +49,8 @@ class OAuthClient(Base):
                         default=datetime.utcnow,
                         nullable=False)
 
+    user = relationship('User', cascade='all, delete')
+
     @property
     def client_type(self):
         if self.is_confidential:
@@ -130,7 +132,7 @@ class Token(Base):
 
     id = Column(Integer, primary_key=True)
 
-    token_type = Column(Unicode(10), nullable=False, default='bearer')
+    token_type = Column(Unicode(10), nullable=False, default=u'bearer')
 
     client_id =  Column(Unicode(100), ForeignKey(OAuthClient.client_id))
 
@@ -145,7 +147,7 @@ class Token(Base):
                            default=generate_refesh_token)
 
     expires = Column(DateTime(timezone=True),
-                     default=datetime.utcnow() + timedelta(days=1),
+                     default=datetime.utcnow() + timedelta(seconds=3600 * 12),
                      nullable=False)
 
     _scopes = Column(UnicodeText)
@@ -158,5 +160,9 @@ class Token(Base):
         if self._default_scopes is None:
             return []
         return self._default_scopes.split(',')
+
+    @property
+    def is_expired(self):
+        return self.expires < datetime.utcnow()
 
     __tablename__ = 'tokens'
