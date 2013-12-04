@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request
 from flask_oauthlib.provider import OAuth2Provider
 
-from .oauth import OAuthClient
+from ..oauth import OAuthClient
 from ..db import session
 
 

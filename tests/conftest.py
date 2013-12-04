@@ -28,6 +28,18 @@ def f_session(request):
         request.addfinalizer(finish)
         return session
 
+
+@fixture
+def f_app(f_session, f_user):
+    app = OAuthClient(name=u'soran',
+                      user_id=f_user.id,
+                      redirect_uri='http://test.com',
+                      is_confidential=True)
+    f_session.add(app)
+    f_session.commit()
+    return app
+
+
 @fixture
 def f_artist(f_session):
     artist_name = u'Brown eyed soul'

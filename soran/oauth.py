@@ -109,7 +109,28 @@ class Grant(Base):
 
 class Token(Base):
 
+    ACCESS_TOKEN_FORM = '{0}:{1}:{2}:{3}:{4}'.format
+
+    REFRESH_ACCESS_TOKEN_FORM = 'refresh:{0}'.format
+
+    def generate_access_token(context):
+        token = Token.ACCESS_TOKEN_FORM(
+            context.current_parameters['token_type'],
+            context.current_parameters['client_id'],
+            context.current_parameters['user_id'],
+            context.current_parameters['_scopes'],
+            datetime.now()
+        )
+        return hashpw(token, gensalt())
+
+    def generate_refesh_token(context):
+        refresh_form = Token.REFRESH_ACCESS_TOKEN_FORM(
+            context.current_parameters['access_token'])
+        return hashpw(refresh_form, gensalt())
+
     id = Column(Integer, primary_key=True)
+
+    token_type = Column(Unicode(10), nullable=False, default='bearer')
 
     client_id =  Column(Unicode(100), ForeignKey(OAuthClient.client_id))
 
@@ -117,11 +138,14 @@ class Token(Base):
 
     user = relationship('User')
 
-    access_token = Column(Unicode(255), unique=True)
+    access_token = Column(Unicode(255), unique=True,
+                          default=generate_access_token)
 
-    refresh_token = Column(Unicode(255), unique=True)
+    refresh_token = Column(Unicode(255), unique=True,
+                           default=generate_refesh_token)
 
-    expires = Column(DateTime(timezone=True), default=datetime.utcnow,
+    expires = Column(DateTime(timezone=True),
+                     default=datetime.utcnow() + timedelta(days=1),
                      nullable=False)
 
     _scopes = Column(UnicodeText)
@@ -134,6 +158,5 @@ class Token(Base):
         if self._default_scopes is None:
             return []
         return self._default_scopes.split(',')
-
 
     __tablename__ = 'tokens'

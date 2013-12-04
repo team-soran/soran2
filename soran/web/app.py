@@ -2,7 +2,6 @@
 from flask import Flask
 
 from . import user, oauth
-from .oauth import  oauth
 from ..db import session, ensure_shutdown_session
 
 __all__ = 'app'
@@ -13,7 +12,7 @@ app = Flask(__name__)
 
 app.register_blueprint(oauth.bp, url_prefix="/%d/oauth" % API_VERSION)
 app.register_blueprint(user.bp, url_prefix="/%d/users" % API_VERSION)
-oauth.init_app(app)
+oauth.oauth.init_app(app)
 @app.route('/')
 def hello():
     return 'Welcome to soran.'
