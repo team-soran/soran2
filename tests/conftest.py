@@ -3,6 +3,9 @@ from pytest import fixture
 from flask import _request_ctx_stack, g
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+import simplejson as json
+
+from .util import url_for
 from soran.web.app import app
 from soran.db import get_session, Base, SERVICE_BUGS, get_engine
 from soran.track import Track
@@ -34,7 +37,7 @@ def f_app(f_session, f_user):
     app = OAuthClient(name=u'soran',
                       user_id=f_user.id,
                       client_id=u'125243794405',
-                      redirect_uri=u'http://test.com',
+                      redirect_uris=u'http://test.com',
                       is_confidential=True)
     f_session.add(app)
     f_session.commit()
@@ -67,3 +70,13 @@ def f_user(f_session):
     f_session.add(u)
     f_session.commit()
     return u
+
+
+@fixture
+def f_login(f_user, f_app):
+    m = f_user.mail
+    p = 'password'
+    url = url_for('user.login')
+    with app.test_client() as c:
+        r = c.post(url, data={'username': m, 'password': p})
+    return json.loads(r.data)

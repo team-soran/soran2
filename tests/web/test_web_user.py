@@ -35,16 +35,6 @@ def test_login(f_app, f_session, f_user):
     assert token.refresh_token == data['refresh_token']
 
 
-@fixture
-def f_login(f_user, f_app):
-    m = f_user.mail
-    p = 'password'
-    url = url_for('user.login')
-    with app.test_client() as c:
-        r = c.post(url, data={'username': m, 'password': p})
-    return json.loads(r.data)
-
-
 def test_me(f_login):
     with app.test_client() as c:
         r = c.get(url_for('user.me', access_token=f_login['access_token']))

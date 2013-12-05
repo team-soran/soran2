@@ -1,0 +1,14 @@
+{% extends "oauth/base.html" %}
+
+{% block title -%}
+  auth 인증
+{%- endblock %}
+
+{% block htmlbody %}
+  {{ super() }}
+  <form methods='POST'>
+    <input type="hidden" value="{{ scopes }}" name="scopes" />
+    <input type="hidden" value="yes" name="confirm" />
+    <input type="submit" />
+  </form>
+{% endblock %}

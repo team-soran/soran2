@@ -41,7 +41,7 @@ class OAuthClient(Base):
 
     is_confidential = Column(Boolean, nullable=False, default=False)
 
-    redirect_uri = Column(UnicodeText, nullable=False)
+    _redirect_uris = Column(UnicodeText, nullable=False)
 
     _default_scopes = Column(UnicodeText)
 
@@ -58,14 +58,27 @@ class OAuthClient(Base):
         return 'public'
 
     @property
-    def default_redirect_url(self):
-        return self.redirect_uri
+    def redirect_uris(self):
+        if self._redirect_uris:
+            return self._redirect_uris.split()
+        return []
+
+    @redirect_uris.setter
+    def redirect_uris(self, v):
+        if isinstance(v, list):
+            self._redirect_uris = ' '.join(v)
+        elif isinstance(v, basestring):
+            self._redirect_uris = v
+
+    @property
+    def default_redirect_uri(self):
+        return self.redirect_uris[0]
 
     @property
     def default_scopes(self):
         if self._default_scopes is None:
             return []
-        return self._default_scopes.split(',')
+        return self._default_scopes.split(' ')
 
     __tablename__ = 'oauth_clients'
 
@@ -97,14 +110,12 @@ class Grant(Base):
     def scopes(self):
         if self._default_scopes is None:
             return []
-        return self._default_scopes.split(',')
-
+        return self._default_scopes.split(' ')
 
     def delete(self):
         session.delete(self)
         session.commit()
         return self
-
 
     __tablename__ = 'grants'
 
