@@ -1,0 +1,21 @@
+{
+    "resultcode": "000",
+    "message": "Success",
+    "resultvalue": [{
+            "trackid": "3201927",
+            "tracktitle": "알고있을까?",
+            "adult": "N",
+            "free": "N",
+            "hasmp3": "Y",
+            "serviceflag": "Y",
+            "artist": [{
+                        "artistid": "145629",
+                        "artistname": "제이레빗(J+Rabbit)"
+                    }],
+            "album": {
+                        "albumid": "318909",
+                        "albumtitle": "2집+Looking+Around",
+                        "imageurl": "http://image.music.naver.net/album/130/000/318/318909.jpg"
+                    }
+        }]
+}

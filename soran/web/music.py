@@ -5,9 +5,9 @@ from flask import Blueprint
 
 import simplejson as json
 
-from ..track import Track, BugsTrack
-from ..album import Album, BugsAlbum
-from ..artist import Artist, BugsArtist
+from ..track import Track, BugsTrack, NaverMusicTrack
+from ..album import Album, BugsAlbum, NaverMusicAlbum
+from ..artist import Artist, BugsArtist, NaverMusicArtist
 
 bp = Blueprint('music', __name__, template_folder='templates/music')
 
@@ -73,10 +73,28 @@ class NaverMusicProvider(MusicServiceProvider):
     """네이버 뮤직  정보 제공"""
 
     def _track_transform(self, d):
-        return d
+        _json = json.loads(d.replace('+', ' '))
+        r = _json['resultvalue'][0]
+        t = Track(name=r['tracktitle'])
+        naver_t = NaverMusicTrack(_internal_service_id=unicode(r['trackid']),
+                                  track=t)
+        return naver_t
 
     def _artist_transform(self, d):
-        pass
+        _json = json.loads(d.replace('+', ' '))
+        r = _json['resultvalue'][0]
+        art = r['artist'][0]
+        a = Artist(name=art['artistname'])
+        naver_a = NaverMusicArtist(
+            _internal_service_id=unicode(art['artistid']),
+            artist=a)
+        return naver_a
 
     def _album_transform(self, d):
-        pass
+        _json = json.loads(d.replace('+', ' '))
+        r = _json['resultvalue'][0]
+        a = Album(name=r['album']['albumtitle'])
+        naver_a = NaverMusicAlbum(
+            _internal_service_id=unicode(r['album']['albumid']),
+            album=a)
+        return naver_a
