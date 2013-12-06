@@ -45,13 +45,9 @@ def get_session(engine=None):
     if engine is None:
         engine = get_engine()
     if not hasattr(g, 'sess'):
-        Session = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-        setattr(g, 'sess', Session())
+        setattr(g, 'sess', Session(bind=engine))
     return getattr(g, 'sess')
 
 
+Session = sessionmaker()
 session = LocalProxy(get_session)
-
-SERVICE_BUGS = 'bugs'
-SERVICE_NAVER_MUSIC = 'naver-music'
-services = Enum(SERVICE_BUGS, SERVICE_NAVER_MUSIC, name='service')

@@ -7,10 +7,11 @@ import simplejson as json
 
 from .util import url_for
 from soran.web.app import app
-from soran.db import get_session, Base, SERVICE_BUGS, get_engine
+from soran.db import get_session, Base, get_engine
 from soran.track import Track
 from soran.artist import Artist
 from soran.user import User
+from soran.music import MusicService
 from soran.oauth import OAuthClient
 
 @fixture
@@ -33,6 +34,14 @@ def f_session(request):
 
 
 @fixture
+def f_bugs(f_session):
+    service = MusicService(name=MusicService.SERVICE_BUGS)
+    f_session.add(service)
+    f_session.commit()
+    return MusicService.bugs
+
+
+@fixture
 def f_app(f_session, f_user):
     app = OAuthClient(name=u'soran',
                       user_id=f_user.id,
@@ -47,7 +56,7 @@ def f_app(f_session, f_user):
 @fixture
 def f_artist(f_session):
     artist_name = u'Brown eyed soul'
-    a = Artist(name=artist_name, services=SERVICE_BUGS)
+    a = Artist(name=artist_name)
     f_session.add(a)
     f_session.commit()
     return a
@@ -56,7 +65,7 @@ def f_artist(f_session):
 @fixture
 def f_track(f_session):
     track_name = u'똑같다면'
-    track = Track(name=track_name, services=SERVICE_BUGS)
+    track = Track(name=track_name)
     f_session.add(track)
     f_session.commit()
     return track

@@ -2,13 +2,14 @@
 from datetime import datetime
 
 from bcrypt import gensalt, hashpw
-from sqlalchemy import Column, Integer, Unicode, ForeignKey, DateTime
+from sqlalchemy import (Column, Integer, Unicode, ForeignKey, DateTime,
+                        UnicodeText)
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
-from .db import Base, services
+from .db import Base
 
-__all__ = 'User', 'MusicServiceUser', 'Credential', 'PasswordCredential',
+__all__ = 'User', 'Credential', 'PasswordCredential',
 
 class User(Base):
 
@@ -17,8 +18,6 @@ class User(Base):
     name = Column(Unicode, nullable=False, unique=True)
 
     mail = Column(Unicode, nullable=False, unique=True)
-
-    music_services = relationship('MusicServiceUser')
 
     credentials = relationship(
                       'Credential', cascade='all, delete-orphan',
@@ -41,21 +40,6 @@ class User(Base):
     __tablename__ = 'users'
 
 
-class MusicServiceUser(Base):
-
-    user_id = Column(Integer, ForeignKey(User.id), primary_key=True)
-
-    service_id = Column(Unicode(255), primary_key=True)
-
-    services = Column(services, primary_key=True)
-
-    created_at = Column(DateTime(timezone=True),
-                        default=datetime.utcnow,
-                        nullable=False)
-
-    __tablename__ = 'music_service_users'
-
-
 class Credential(Base):
 
     id = Column(Integer, primary_key=True)
@@ -75,7 +59,7 @@ class Credential(Base):
 
 
 class PasswordCredential(Credential):
-    
+
     sort_ = 'password'
 
     id = Column(Integer, ForeignKey(Credential.id), primary_key=True)
