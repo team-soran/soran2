@@ -48,7 +48,6 @@ def find_client(client_id):
 
 @oauth.grantgetter
 def find_grant(client_id, code):
-    print 'grant getter'
     return session.query(Grant)\
                .filter(Grant.client_id == client_id)\
                .filter(Grant.code == code)\
@@ -60,25 +59,30 @@ def save_grant(client_id, code, request, *args, **kwards):
     expires = datetime.utcnow() + timedelta(seconds=100)
     grant = Grant(client_id=client_id, code=code['code'],
                   redirect_uri=request.redirect_uri,
-                  _scopes=' '.join(request.scopes),
+                  _default_scopes=' '.join(request.scopes),
                   user=g.current_user,
                   expires=expires)
     session.add(grant)
     session.commit()
-    print 'grant'
     return grant
 
 
 @oauth.tokengetter
 def load_token(access_token=None, refresh_token=None):
+    tok = None
     if access_token:
-        return Token.query.filter_by(access_token=access_token).first()
+        tok = session.query(Token)\
+                  .filter_by(access_token=access_token)\
+                  .first()
     elif refresh_token:
-        return Token.query.filter_by(refresh_token=refresh_token).first()
+        tok = session.query(Token)\
+                  .filter_by(refresh_token=access_token)\
+                  .first()
+    return tok
 
 
 @oauth.tokensetter
-def save_token(token, request, *args, **kwargs):
+def save_token(token, request, *args, **kwards):
     token = create_or_find_token(request.client.client_id,
                                  g.current_user.id,
                                  token.get('expires_in', None))
@@ -134,11 +138,10 @@ def auth(*args, **kwards):
 
 @bp.route('/token/')
 @oauth.token_handler
-def access_token():
+def access_token(*args, **kwards):
     return None
 
 
 @bp.route('/erros/', methods=['GET'])
-def error():
-    print request
+def error(*args, **kwards):
     return 'error'

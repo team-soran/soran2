@@ -49,7 +49,7 @@ def test_header_me(f_login):
     with app.test_client() as c:
         r = c.get(url_for('user.me'),
                   headers={
-                      'Authorization': 'OAuth %s' % f_login['access_token']})
+                      'Authorization': 'Auth %s' % f_login['access_token']})
     assert 200 == r.status_code
     data = json.loads(r.data)
     assert 'ok' in data

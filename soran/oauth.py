@@ -98,7 +98,7 @@ class Grant(Base):
 
     redirect_uri = Column(UnicodeText)
 
-    _scopes = Column(UnicodeText)
+    _default_scopes = Column(UnicodeText)
 
     expires = Column(DateTime(timezone=True), default=datetime.utcnow,
                      nullable=False)
@@ -111,6 +111,13 @@ class Grant(Base):
         if self._default_scopes is None:
             return []
         return self._default_scopes.split(' ')
+
+    @scopes.setter
+    def scopes(self, v):
+        if isinstance(v, list):
+            self._default_scopes = ' '.join(v)
+        elif isinstance(v, basestring):
+            self._default_scopes = v
 
     def delete(self):
         session.delete(self)

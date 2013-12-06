@@ -41,25 +41,25 @@ def test_oauth_flow(f_user, f_other_app, f_login, f_session):
             headers=auth_header,
             data={'confirm': 'yes', 'scope': 'user'})
     assert 302 == r.status_code
-    grant = f_session.query(Grant)\
-                .first()
+    grant = f_session.query(Grant).first()
     assert grant
     assert grant.code
-
-    token_url = url_for('oauth.auth',
+    token_url = url_for('oauth.access_token',
                         client_id=f_other_app.client_id,
                         client_secret=f_other_app.client_secret,
                         redirect_uri=f_other_app.default_redirect_uri,
                         code=grant.code,
-                        response_type='authorization_code',
+                        grant_type='authorization_code',
                         scopes='user')
     with app.test_client() as c:
+        print '---request'
         r = c.get(token_url,
                   headers=auth_header)
     assert 200 == r.status_code
     assert r.data
+    print r.data
     data = json.loads(r.data)
     assert 'access_token' in data
     assert 'refresh_token' in data
-    assert 'expires' in data
+    assert 'expires_in' in data
     assert 'token_type' in data
