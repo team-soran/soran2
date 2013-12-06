@@ -2,7 +2,7 @@
 from pytest import fixture
 import simplejson as json
 
-from soran.web.music import BugsProvider, NaverMusicProvider
+from soran.web.service_provider import BugsProvider, NaverMusicProvider
 from soran.music import MusicService
 
 def test_bugs_track_provider(f_bugs):
