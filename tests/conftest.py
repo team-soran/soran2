@@ -89,3 +89,15 @@ def f_login(f_user, f_app):
     with app.test_client() as c:
         r = c.post(url, data={'username': m, 'password': p})
     return json.loads(r.data)
+
+
+@fixture
+def f_bugs_data():
+    with open('./tests/web/assets/bugs_track.json', 'r') as f:
+        return json.loads(f.read())
+
+
+@fixture
+def f_naver_data():
+    with open('./tests/web/assets/naver_track.json', 'r') as f:
+        return json.loads(f.read())

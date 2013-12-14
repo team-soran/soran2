@@ -10,11 +10,11 @@
             "serviceflag": "Y",
             "artist": [{
                         "artistid": "145629",
-                        "artistname": "제이레빗(J+Rabbit)"
+                        "artistname": "제이레빗(J Rabbit)"
                     }],
             "album": {
                         "albumid": "318909",
-                        "albumtitle": "2집+Looking+Around",
+                        "albumtitle": "2집 Looking Around",
                         "imageurl": "http://image.music.naver.net/album/130/000/318/318909.jpg"
                     }
         }]

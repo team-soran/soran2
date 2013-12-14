@@ -39,8 +39,8 @@ class MusicServiceProvider(object):
 class BugsProvider(MusicServiceProvider):
     """벅스 정보 제공"""
 
-    def _track_transform(self, d):
-        _json = json.loads(d)
+
+    def _track_transform(self, _json):
         t = Track(genre=_json['track']['genre_dtl'],
                   name=_json['track']['track_title'])
         bugs_t = BugsTrack(
@@ -48,16 +48,14 @@ class BugsProvider(MusicServiceProvider):
             track=t)
         return bugs_t
 
-    def _artist_transform(self, d):
-        _json = json.loads(d)
+    def _artist_transform(self, _json):
         a = Artist(name=_json['track']['artist_nm'])
         bugs_a = BugsArtist(
             artist=a,
             _internal_service_id=unicode(_json['track']['artist_id']))
         return bugs_a
 
-    def _album_transform(self, d):
-        _json = json.loads(d)
+    def _album_transform(self, _json):
         a = Album(name=_json['track']['album_title'])
         bugs_a = BugsAlbum(
             _internal_service_id=unicode(_json['track']['album_id']),
@@ -68,16 +66,14 @@ class BugsProvider(MusicServiceProvider):
 class NaverMusicProvider(MusicServiceProvider):
     """네이버 뮤직  정보 제공"""
 
-    def _track_transform(self, d):
-        _json = json.loads(d.replace('+', ' '))
+    def _track_transform(self, _json):
         r = _json['resultvalue'][0]
         t = Track(name=r['tracktitle'])
         naver_t = NaverMusicTrack(_internal_service_id=unicode(r['trackid']),
                                   track=t)
         return naver_t
 
-    def _artist_transform(self, d):
-        _json = json.loads(d.replace('+', ' '))
+    def _artist_transform(self, _json):
         r = _json['resultvalue'][0]
         art = r['artist'][0]
         a = Artist(name=art['artistname'])
@@ -86,8 +82,7 @@ class NaverMusicProvider(MusicServiceProvider):
             artist=a)
         return naver_a
 
-    def _album_transform(self, d):
-        _json = json.loads(d.replace('+', ' '))
+    def _album_transform(self, _json):
         r = _json['resultvalue'][0]
         a = Album(name=r['album']['albumtitle'])
         naver_a = NaverMusicAlbum(
