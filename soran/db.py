@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.types import Enum
 
+import simplejson as json
+
 __all__ = ('Base', 'ensure_shutdown_session', 'get_engine', 'get_session',
            'get_alembic_config')
 
@@ -47,6 +49,15 @@ def get_session(engine=None):
     if not hasattr(g, 'sess'):
         setattr(g, 'sess', Session(bind=engine))
     return getattr(g, 'sess')
+
+
+class Jsonable(object):
+
+    def to_json(self):
+        return json.dumps(self.__json__())
+
+    def __json__(self):
+        raise NotImplemented()
 
 
 Session = sessionmaker()
