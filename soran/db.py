@@ -54,7 +54,7 @@ def get_session(engine=None):
 class Jsonable(object):
 
     def to_json(self):
-        return json.dumps(self.__json__())
+        return json.dumps(self.__json__()).encode('utf-8')
 
     def __json__(self):
         raise NotImplemented()

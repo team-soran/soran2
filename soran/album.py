@@ -8,6 +8,8 @@ from sqlalchemy.orm import relationship
 from .db import Base, Jsonable
 from .music import MusicService
 
+__all__ = 'Album', 'MusicServiceAlbum', 'NaverMusicAlbum', 'BugsAlbum'
+
 class Album(Base, Jsonable):
 
     id = Column(Integer, primary_key=True)
@@ -21,7 +23,7 @@ class Album(Base, Jsonable):
     __tablename__ = 'albums'
 
     def __json__(self):
-        return {'id': self.id, 'name': self.name.encode('utf-8')}
+        return {'id': self.id, 'name': self.name}
 
 
 class MusicServiceAlbum(Base, Jsonable):
@@ -41,7 +43,7 @@ class MusicServiceAlbum(Base, Jsonable):
     __mapper_args__ = {'polymorphic_on': music_service_name}
 
     def __json__(self):
-        return {'id': self.album_id, 'name': self.album.name.encode('utf-8')}
+        return {'id': self.album_id, 'name': self.album.name}
 
 
 class BugsAlbum(MusicServiceAlbum):

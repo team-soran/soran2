@@ -3,9 +3,10 @@ from collections import namedtuple
 
 import simplejson as json
 
-from ..track import Track, BugsTrack, NaverMusicTrack
+from ..db import session
 from ..album import Album, BugsAlbum, NaverMusicAlbum
 from ..artist import Artist, BugsArtist, NaverMusicArtist
+from ..track import Track, BugsTrack, NaverMusicTrack
 
 Music = namedtuple('Music', ['artist', 'track', 'album'])
 

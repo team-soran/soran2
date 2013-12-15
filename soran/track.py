@@ -4,12 +4,12 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, Unicode, DateTime, UnicodeText
 from sqlalchemy.orm import relationship
 
-from .db import Base
+from .db import Base, Jsonable
 from .music import MusicService
 
 __all__ = 'Track', 'ListenTrack'
 
-class Track(Base):
+class Track(Base, Jsonable):
 
     id = Column(Integer, primary_key=True)
 
@@ -22,6 +22,9 @@ class Track(Base):
                         nullable=False)
 
     __tablename__ = 'tracks'
+
+    def __json__(self):
+        return {'id': self.id, 'name': self.name}
 
 
 class MusicServiceTrack(Base):

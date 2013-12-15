@@ -15,9 +15,14 @@ def create_music():
     if not payload:
         return not_acceptable(message='json required.')
     data = naver.transform(request.json)
+    session.add(data.album)
+    session.add(data.artist)
+    session.add(data.track)
     try:
         session.commit()
     except IntegrityError:
         session.rollback()
         return internal_server_error()
-    return created(track={})
+    return created(track={'id': data.track.track.id},
+                   album={'id': data.album.album.id},
+                   artist={'id': data.artist.artist.id})
