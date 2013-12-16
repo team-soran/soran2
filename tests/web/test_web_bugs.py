@@ -8,8 +8,9 @@ from soran.album import Album
 from soran.artist import Artist
 from soran.track import Track
 
-def test_bugs_create_music(f_session, f_bugs_data):
-    url = url_for('bugs.create_bugs')
+def test_bugs_create_music(f_session, f_bugs_data, f_access_token):
+    url = url_for('bugs.create_bugs',
+                  access_token=f_access_token.access_token)
     with app.test_client() as c:
         r = c.post(url, data=json.dumps(f_bugs_data),
                    content_type='application/json')

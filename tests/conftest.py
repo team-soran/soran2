@@ -7,6 +7,7 @@ import simplejson as json
 
 from .util import url_for
 from soran.web.app import app
+from soran.web.oauth import create_or_find_token
 from soran.db import get_session, Base, get_engine
 from soran.track import Track
 from soran.artist import Artist
@@ -101,3 +102,9 @@ def f_bugs_data():
 def f_naver_data():
     with open('./tests/web/assets/naver_track.json', 'r') as f:
         return json.loads(f.read())
+
+
+@fixture
+def f_access_token(f_user, f_app):
+    return create_or_find_token(user_id=f_user.id, client_id=f_app.client_id,
+                                expires_in=3600, scopes='all')

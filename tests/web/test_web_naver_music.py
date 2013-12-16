@@ -8,8 +8,9 @@ from soran.album import Album
 from soran.artist import Artist
 from soran.track import Track
 
-def test_naver_music_create_music(f_session, f_naver_data):
-    url = url_for('naver_music.create_naver_music')
+def test_naver_music_create_music(f_session, f_naver_data, f_access_token):
+    url = url_for('naver_music.create_naver_music',
+                  access_token=f_access_token.access_token)
     with app.test_client() as c:
         r = c.post(url, data=json.dumps(f_naver_data),
                    content_type='application/json')
